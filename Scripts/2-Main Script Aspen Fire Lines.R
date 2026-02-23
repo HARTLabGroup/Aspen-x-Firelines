@@ -940,6 +940,29 @@ avg_perim <- as.vector(round(avg_perim$`FireData$perim_m`,0)) ## this avoids a w
 summaryTable$avg_linelength_m <- avg_perim
 write.csv(summaryTable, "./Results/Table1.csv")
 
+## Supplemental Table for slope and n lines
+vec <- unique(FireData$fire)
+slope.res <- data.frame(firename = rep(NA, length(vec)),
+                        EH_over12 = rep(NA, length(vec)),
+                        EF_over12 = rep(NA, length(vec)),
+                        EH_over25 = rep(NA, length(vec)),
+                        EF_over25 = rep(NA, length(vec)))
+for(i in 1:length(vec)){
+  slopes_over_12 <- FireData[FireData$slope >= 12 & FireData$fire == vec[i],]
+  slopes_over_25 <- FireData[FireData$slope >= 25 & FireData$fire == vec[i],]
+  slope.res$firename[i] <- vec[i]
+  slope.res$EH_over12[i] <- length(which(slopes_over_12$stat == "EH"))
+  slope.res$EF_over12[i]  <- length(which(slopes_over_12$stat == "EF"))
+  slope.res$EH_over25[i] <- length(which(slopes_over_25$stat == "EH"))
+  slope.res$EF_over25[i]  <- length(which(slopes_over_25$stat == "EF"))
+  }
+rm(i);rm(vec);rm(slopes_over_12);rm(slopes_over_25)
+slope.res <- slope.res[order(slope.res$firename),]
+slope.res$tot_EF <- summaryTable$EF
+slope.res$tot_EH <- summaryTable$EH
+write.csv(slope.res, "./Results/TableS3.csv")
+rm(slope.res)
+
 sum(summaryTable$EH)/nrow(FireData)*100
 ## 65% of lines held
 vec <- c("cameronpeak","mullen","easttroublesome","hermitspeak") ## 4 largest fires
